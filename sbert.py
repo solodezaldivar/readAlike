@@ -44,7 +44,7 @@ readAlikeDataFrame_reduced = readAlikeDataFrame.head(500)
 book_objects = [Book(row['Title'], row['Description'], row['Category']) for _, row in readAlikeDataFrame_reduced.iterrows()]
 print("preprocessing completed")
 
-# Embeddings
+# Embeddings (uses Hugging Face and SBERT pretrained model)
 print("computing embeddings...")
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2')  # https://huggingface.co/sentence-transformers/paraphrase-MiniLM-L6-v2
 book_info = [book.get_combined_text() for book in book_objects]
