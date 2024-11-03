@@ -45,7 +45,7 @@ print("preprocessing completed")
 
 # Embeddings
 print("computing embeddings...")
-model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+model = SentenceTransformer('paraphrase-MiniLM-L6-v2')  # https://huggingface.co/sentence-transformers/paraphrase-MiniLM-L6-v2
 book_info = [book.get_combined_text() for book in book_objects]
 book_embeddings = model.encode(book_info, convert_to_tensor=True)
 print("embeddings completed")
