@@ -37,3 +37,8 @@ config.json
 
 # Data files
 /resources/datasets/
+
+# IDE
+.idea
+.DS_Store
+.vscode
