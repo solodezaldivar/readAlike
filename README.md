@@ -7,12 +7,14 @@
 ## Project Structure
 
 ### 1. Classes
-- **`Preprocessor`**: Handles data cleaning and formatting from a CSV file of book data.
-- **`Library`** and **`Book`**: Models the library of books and individual book data.
-- **`Vectorizer`**: Converts book text data into numerical vectors using TF-IDF and Sentence-BERT.
-- **`DimensionalityReducer`**: Reduces the dimensionality of TF-IDF vectors using Truncated SVD.
-- **`Ann`**: Creates an Approximate Nearest Neighbors model for efficient similarity search.
-- **`Recommender`**: Main recommendation engine that integrates the above components to provide recommendations.
+- **preprocessing/**: Manages data preprocessing.
+  - **`Preprocessor`**: Handles data cleaning and formatting from a CSV file of book data.
+- **core/**: Contains the core modules for recommendation.
+  - **`Library`** and **`Book`**: Models the library of books and individual book data.
+  - **`Vectorizer`**: Converts book text data into numerical vectors using TF-IDF and Sentence-BERT.
+  - **`DimensionalityReducer`**: Reduces the dimensionality of TF-IDF vectors using Truncated SVD.
+  - **`Ann`**: Creates an Approximate Nearest Neighbors model for efficient similarity search.
+  - **`Recommender`**: Main recommendation engine that integrates the above components to provide recommendations.
 
 ### 2. Key Components
 - **`config.py`**: Configuration file with column names for title, description, authors, and categories.
