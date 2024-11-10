@@ -1,10 +1,12 @@
 import numpy as np
 
 from annoy import AnnoyIndex
+from tqdm import tqdm
 
 
 class Ann:
     def __init__(self, reduced_matrix: np.ndarray, n_trees: int):
+        tqdm.write("Initializing ANN index...")
         self.__ann_indices = self.__get_ann_indices(reduced_matrix, n_trees)
 
     @staticmethod

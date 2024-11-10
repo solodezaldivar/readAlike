@@ -1,4 +1,5 @@
 from pandas import DataFrame
+from tqdm import tqdm
 
 from config import TITLE_COL, DESCRIPTION_COL, AUTHORS_COL, CATEGORIES_COL
 
@@ -32,6 +33,7 @@ class Book:
 
 class Library:
     def __init__(self, df: DataFrame):
+        tqdm.write("Loading books into library...")
         self.books = self.__df_to_books(df)
 
     def __str__(self):
@@ -44,8 +46,10 @@ class Library:
 
     @staticmethod
     def __df_to_books(df: DataFrame) -> list[Book]:
-        return [Book(item[TITLE_COL], item[DESCRIPTION_COL], item[AUTHORS_COL], item[CATEGORIES_COL]) for _, item in
-                df.iterrows()]
+        return [
+            Book(item[TITLE_COL], item[DESCRIPTION_COL], item[AUTHORS_COL], item[CATEGORIES_COL])
+            for _, item in df.iterrows()
+        ]
 
     def get_combined_data(self) -> list[str]:
         return [book.get_combined_data() for book in self.books]

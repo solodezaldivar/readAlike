@@ -1,43 +1,72 @@
-from preprocessor import Preprocessor
-from library import Library, Book
-from recommender import Recommender
-from config import COLS
+import random
 
-DATASET_PATH = './datasets/amazon_books_data.csv'  # https://www.kaggle.com/datasets/mohamedbakhet/amazon-books-reviews
-N_REDUCED_DATASET = 500
+from tqdm import tqdm
 
-preprocessor = Preprocessor(DATASET_PATH, COLS)
-readAlike_preprocessed = preprocessor.preprocess_data()
-readAlike_preprocessed_reduced = readAlike_preprocessed.head(N_REDUCED_DATASET)
+from preprocessing.preprocessor import Preprocessor
+from core.library import Library
+from core.recommender import Recommender
+from config import DATASET_PATH, COLS, N_REDUCED_DATASET, N_DIM_REDUCTION, N_TREES, N_RECOMMENDATIONS, N_ITERATIONS
 
-readAlike_lib_reduced = Library(readAlike_preprocessed_reduced)
-readAlike_recommender_reduced = Recommender(readAlike_lib_reduced)
 
-input_book = Book(
-    title='Whispers of the Wicked Saints',
-    description="Julia Thomas finds her life spinning out of control after the death of her husband, Richard. "
-                "Julia turns to her minister for comfort when she finds herself falling for him with a passion that "
-                "is forbidden by the church. Heath Sparks is a man of God who is busy taking care of his quadriplegic "
-                "wife who was seriously injured in a sever car accident. In an innocent effort to reach out to a "
-                "lonely member of his church, Heath finds himself as the man and not the minister as Heath and Julia "
-                "surrender their bodies to each other and face the wrath of God. Julia finds herself in over her head "
-                "as she faces a deadly disease, the loss of her home and whispers about her wicked affair. Julia "
-                "leaves the states offering her body as a living sacrifice in hopes of finding a cure while her heart "
-                "remains thousands of miles away hoping to one day reunite with the man who holds it hostage.Whispers "
-                "of the Wicked Saints is a once in a lifetime romance that is breath taking, defying all the rules of "
-                "romance and bending the laws of love.",
-    authors=['Veronica Haddon'],
-    categories=['Fiction']
-)
+def setup_recommender(use_reduced_dataset: bool) -> tuple[Library, Recommender]:
+    preprocessor = Preprocessor(DATASET_PATH, COLS)
+    preprocessed_data = preprocessor.preprocess_data()
+    if use_reduced_dataset:
+        preprocessed_data = preprocessed_data.head(N_REDUCED_DATASET)
+    library = Library(preprocessed_data)
+    recommender = Recommender(library, n_dim_reduction=N_DIM_REDUCTION, n_trees=N_TREES)
+    return library, recommender
 
-tfidf, sbert, ann = readAlike_recommender_reduced.recommend(input_book)
 
-for idx in range(5):
-    print(f"Recommendation {idx+1}:")
-    print(f"TF-IDF Title: {tfidf[idx].title}")
-    print(f"TF-IDF Categories: {tfidf[idx].categories}")
-    print(f"SBERT Title: {sbert[idx].title}")
-    print(f"SBERT Categories: {sbert[idx].categories}")
-    print(f"ANN Title: {ann[idx].title}")
-    print(f"ANN Categories: {ann[idx].categories}")
-    print("")
+def run_recommender(library: Library, recommender: Recommender, n_iterations=10):
+    tqdm.write("Starting recommender...")
+    all_recommendations = []
+
+    for _ in tqdm(range(n_iterations), desc="Generating recommendations"):
+        random_book = random.choice(library.books)
+        tfidf_recs, sbert_recs, ann_recs = recommender.recommend(random_book, n_recommendations=N_RECOMMENDATIONS)
+        recommendations = {
+            "book": random_book,
+            "tfidf": tfidf_recs,
+            "sbert": sbert_recs,
+            "ann": ann_recs
+        }
+        all_recommendations.append(recommendations)
+
+        # TODO: Evaluation for each approach separately, and across approaches
+        #  (think about file structure to split up meaningfully)
+
+        # IDEA 1: average cosine similarity
+        # def average_cosine_similarity(recommended_indices, cosine_sim_matrix, ref_idx, k):
+        #     similarity_scores = [cosine_sim_matrix[ref_idx][idx] for idx in recommended_indices[:k]]
+        #     avg_similarity = sum(similarity_scores) / k
+        #     return avg_similarity
+
+        # IDEA 2: average precision @ K
+        # def average_precision_at_k(ref_idx, recommended_indices, cosine_sim_matrix, relevance_threshold, k):
+        #     score = 0.0
+        #     num_hits = 0.0
+        #     for i, idx in enumerate(recommended_indices[:k]):
+        #         if cosine_sim_matrix[ref_idx][idx] > relevance_threshold:
+        #             num_hits += 1.0
+        #             score += num_hits / (i + 1.0)
+        #     return score / min(len(recommended_indices), k)
+
+        # IDEA 3: intra list similarity -> diversity
+        # from itertools import combinations
+        #
+        # def intra_list_similarity(recommended_indices, cosine_sim_matrix):
+        #     pairs = list(combinations(recommended_indices, 2))
+        #     similarities = [cosine_sim_matrix[i][j] for i, j in pairs]
+        #     return sum(similarities) / len(similarities) if similarities else 0
+
+        # IDEA 4: novelty
+        # def novelty_score(recommended_indices, movie_popularity):
+        #     popularities = [movie_popularity[idx] for idx in recommended_indices]
+        #     avg_popularity = sum(popularities) / len(popularities)
+        #     return avg_popularity  # Lower score indicates higher novelty
+
+
+if __name__ == "__main__":
+    read_alike_library, read_alike_recommender = setup_recommender(use_reduced_dataset=True)
+    run_recommender(read_alike_library, read_alike_recommender, n_iterations=N_ITERATIONS)

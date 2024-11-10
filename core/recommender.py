@@ -2,10 +2,10 @@ import numpy as np
 
 from sklearn.metrics.pairwise import cosine_similarity
 
-from library import Library, Book
-from vectorizer import Vectorizer
-from dimensionality_reducer import DimensionalityReducer
-from ann import Ann
+from core.library import Library, Book
+from core.vectorizer import Vectorizer
+from core.dimensionality_reducer import DimensionalityReducer
+from core.ann import Ann
 
 
 class Recommender:

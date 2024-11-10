@@ -2,12 +2,14 @@ import pandas as pd
 import numpy as np
 
 from pandas import DataFrame
+from tqdm import tqdm
 
 from config import DESCRIPTION_COL, TITLE_COL, AUTHORS_COL, CATEGORIES_COL
 
 
 class Preprocessor:
     def __init__(self, path: str, cols: list[str]):
+        tqdm.write("Loading CSV...")
         self.df = pd.read_csv(path, usecols=cols)
 
     def drop_items_with_short_entries(self, col_names: list[str], limit: int = 10) -> None:
@@ -22,6 +24,7 @@ class Preprocessor:
             self.df[col_name] = self.df[col_name].apply(lambda x: x.strip("[]").replace("'", "").split(", "))
 
     def preprocess_data(self) -> DataFrame:
+        tqdm.write("Starting data preprocessing...")
         self.df.replace(r'', np.nan, regex=True, inplace=True)  # replace null with NaN
         self.df.dropna(inplace=True)  # drop items with NaN
         self.drop_items_with_short_entries([DESCRIPTION_COL])
