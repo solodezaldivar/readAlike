@@ -1,5 +1,7 @@
 from pandas import DataFrame
 
+from config import TITLE_COL, DESCRIPTION_COL, AUTHORS_COL, CATEGORIES_COL
+
 
 class Book:
     def __init__(self, title: str, description: str, authors: list[str], categories: list[str]):
@@ -42,7 +44,7 @@ class Library:
 
     @staticmethod
     def __df_to_books(df: DataFrame) -> list[Book]:
-        return [Book(item['Title'], item['description'], item['authors'], item['categories']) for _, item in
+        return [Book(item[TITLE_COL], item[DESCRIPTION_COL], item[AUTHORS_COL], item[CATEGORIES_COL]) for _, item in
                 df.iterrows()]
 
     def get_combined_data(self) -> list[str]:

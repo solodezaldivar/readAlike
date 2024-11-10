@@ -1,20 +1,17 @@
-import preprocess
-
+from preprocessor import Preprocessor
 from library import Library, Book
-from vectorizer import Vectorizer
 from recommender import Recommender
+from config import COLS
 
 DATASET_PATH = './datasets/amazon_books_data.csv'  # https://www.kaggle.com/datasets/mohamedbakhet/amazon-books-reviews
-COLS = ['Title', 'description', 'authors', 'categories']
 N_REDUCED_DATASET = 500
 
-readAlike = preprocess.read_data(DATASET_PATH, COLS)
-readAlike_preprocessed = preprocess.preprocess_data(readAlike)
+preprocessor = Preprocessor(DATASET_PATH, COLS)
+readAlike_preprocessed = preprocessor.preprocess_data()
 readAlike_preprocessed_reduced = readAlike_preprocessed.head(N_REDUCED_DATASET)
 
 readAlike_lib_reduced = Library(readAlike_preprocessed_reduced)
-readAlike_vectorizer_reduced = Vectorizer(readAlike_lib_reduced)
-readAlike_recommender_reduced = Recommender(readAlike_lib_reduced, readAlike_vectorizer_reduced)
+readAlike_recommender_reduced = Recommender(readAlike_lib_reduced)
 
 input_book = Book(
     title='Whispers of the Wicked Saints',
