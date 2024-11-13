@@ -1,15 +1,23 @@
 import random
-
+import numpy as np
+import csv
 from tqdm import tqdm
 
+from plot_service import plot_distribution, plot_intra_scores
 from preprocessing.preprocessor import Preprocessor
 from core.library import Library
 from core.recommender import Recommender
 from config import DATASET_PATH, COLS, N_REDUCED_DATASET, N_DIM_REDUCTION, N_TREES, N_RECOMMENDATIONS, N_ITERATIONS
+import kagglehub
+
+# Download latest version
+path = kagglehub.dataset_download("mohamedbakhet/amazon-books-reviews")
+
+print("Path to dataset files:", path)
 
 
 def setup_recommender(use_reduced_dataset: bool) -> tuple[Library, Recommender]:
-    preprocessor = Preprocessor(DATASET_PATH, COLS)
+    preprocessor = Preprocessor(path+"/books_data.csv", COLS)
     preprocessed_data = preprocessor.preprocess_data()
     if use_reduced_dataset:
         preprocessed_data = preprocessed_data.head(N_REDUCED_DATASET)
@@ -22,51 +30,41 @@ def run_recommender(library: Library, recommender: Recommender, n_iterations=10)
     tqdm.write("Starting recommender...")
     all_recommendations = []
 
+    # select n random books from user library
     for _ in tqdm(range(n_iterations), desc="Generating recommendations"):
         random_book = random.choice(library.books)
         tfidf_recs, sbert_recs, ann_recs = recommender.recommend(random_book, n_recommendations=N_RECOMMENDATIONS)
+        ann_books = [book for book, _ in ann_recs]
+        ann_scores = [score for _, score in ann_recs]
+        
+        # Normalize ANN scores between 0 and 1
+        min_ann_score = min(ann_scores)
+        max_ann_score = max(ann_scores)
+        ann_scores_normalized = [(score - min_ann_score) / (max_ann_score - min_ann_score) for score in ann_scores]
         recommendations = {
             "book": random_book,
-            "tfidf": tfidf_recs,
-            "sbert": sbert_recs,
-            "ann": ann_recs
+            "tfidf_recs": tfidf_recs[0],
+            "avg_tfidf_score": np.average(tfidf_recs[1]),
+            "sbert_recs": sbert_recs[0],
+            "avg_sbert_score": np.average(sbert_recs[1]),
+            "ann_recs": ann_books,
+            "avg_ann_score": np.average(ann_scores_normalized)
         }
         all_recommendations.append(recommendations)
-
-        # TODO: Evaluation for each approach separately, and across approaches
-        #  (think about file structure to split up meaningfully)
-
-        # IDEA 1: average cosine similarity
-        # def average_cosine_similarity(recommended_indices, cosine_sim_matrix, ref_idx, k):
-        #     similarity_scores = [cosine_sim_matrix[ref_idx][idx] for idx in recommended_indices[:k]]
-        #     avg_similarity = sum(similarity_scores) / k
-        #     return avg_similarity
-
-        # IDEA 2: average precision @ K
-        # def average_precision_at_k(ref_idx, recommended_indices, cosine_sim_matrix, relevance_threshold, k):
-        #     score = 0.0
-        #     num_hits = 0.0
-        #     for i, idx in enumerate(recommended_indices[:k]):
-        #         if cosine_sim_matrix[ref_idx][idx] > relevance_threshold:
-        #             num_hits += 1.0
-        #             score += num_hits / (i + 1.0)
-        #     return score / min(len(recommended_indices), k)
-
-        # IDEA 3: intra list similarity -> diversity
-        # from itertools import combinations
-        #
-        # def intra_list_similarity(recommended_indices, cosine_sim_matrix):
-        #     pairs = list(combinations(recommended_indices, 2))
-        #     similarities = [cosine_sim_matrix[i][j] for i, j in pairs]
-        #     return sum(similarities) / len(similarities) if similarities else 0
-
-        # IDEA 4: novelty
-        # def novelty_score(recommended_indices, movie_popularity):
-        #     popularities = [movie_popularity[idx] for idx in recommended_indices]
-        #     avg_popularity = sum(popularities) / len(popularities)
-        #     return avg_popularity  # Lower score indicates higher novelty
+        
+    tfidf_scores = [score["avg_tfidf_score"] for score in all_recommendations]
+    sbert_scores = [score["avg_sbert_score"] for score in all_recommendations]
+    ann_scores = [score["avg_ann_score"] for score in all_recommendations]
+    # Plotting
+    plot_distribution(all_recommendations)
+    
+    
+    plot_intra_scores(tfidf_scores, "Avg TF-IDF")
+    plot_intra_scores(sbert_scores, "Avg SBERTH")
+    plot_intra_scores(ann_scores_normalized, "Avg ANN Distance")
+    
 
 
 if __name__ == "__main__":
-    read_alike_library, read_alike_recommender = setup_recommender(use_reduced_dataset=True)
+    read_alike_library, read_alike_recommender = setup_recommender(use_reduced_dataset=False)
     run_recommender(read_alike_library, read_alike_recommender, n_iterations=N_ITERATIONS)
