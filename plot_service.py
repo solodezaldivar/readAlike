@@ -7,8 +7,9 @@ def plot_intra_scores(scores, name):
     plt.figure(figsize=(10,6))
     seaborn.histplot(scores, bins=30, kde=True, color='skyblue', alpha=0.7)
     plt.title(f'Distribution of {name}')
-    plt.xlabel(f'{name}')
+    plt.xlabel(f'{name}_scores')
     plt.ylabel('Frequency')
+    plt.savefig(f"{name} Scores.png")
     plt.show()
     
 def plot_distribution(all_recommendations):
