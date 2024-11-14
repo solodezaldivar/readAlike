@@ -3,7 +3,7 @@ import numpy as np
 import csv
 from tqdm import tqdm
 
-from plot_service import plot_distribution, plot_intra_scores
+from plot_service import plot_distribution, plot_intra_scores, compare_similarity_distributions
 from preprocessing.preprocessor import Preprocessor
 from core.library import Library
 from core.recommender import Recommender
@@ -40,7 +40,7 @@ def run_recommender(library: Library, recommender: Recommender, n_iterations=10)
         # Normalize ANN scores between 0 and 1
         min_ann_score = min(ann_scores)
         max_ann_score = max(ann_scores)
-        ann_scores_normalized = [(score - min_ann_score) / (max_ann_score - min_ann_score) for score in ann_scores]
+        ann_scores_normalized = [1 - (score - min_ann_score) / (max_ann_score - min_ann_score) for score in ann_scores] # invert since lower distances mean higher similarity in ANN
         recommendations = {
             "book": random_book,
             "tfidf_recs": tfidf_recs[0],
@@ -48,23 +48,27 @@ def run_recommender(library: Library, recommender: Recommender, n_iterations=10)
             "sbert_recs": sbert_recs[0],
             "avg_sbert_score": np.average(sbert_recs[1]),
             "ann_recs": ann_books,
-            "avg_ann_score": np.average(ann_scores_normalized)
+            "avg_ann_score_normalized": np.average(ann_scores_normalized),
+            "avg_ann_score": np.average(ann_scores)
         }
         all_recommendations.append(recommendations)
         
     tfidf_scores = [score["avg_tfidf_score"] for score in all_recommendations]
     sbert_scores = [score["avg_sbert_score"] for score in all_recommendations]
     ann_scores = [score["avg_ann_score"] for score in all_recommendations]
+    ann_scores_normalized = [score["avg_ann_score_normalized"] for score in all_recommendations]
     # Plotting
     plot_distribution(all_recommendations)
     
     
     plot_intra_scores(tfidf_scores, "Avg TF-IDF")
     plot_intra_scores(sbert_scores, "Avg SBERTH")
-    plot_intra_scores(ann_scores_normalized, "Avg ANN Distance")
+    plot_intra_scores(ann_scores, "Avg ANN Distance NOT normalized")
+    plot_intra_scores(ann_scores_normalized, "Avg ANN Distance Normalized")
+    compare_similarity_distributions(tfidf_scores, ann_scores_normalized)
     
 
 
 if __name__ == "__main__":
-    read_alike_library, read_alike_recommender = setup_recommender(use_reduced_dataset=False)
+    read_alike_library, read_alike_recommender = setup_recommender(use_reduced_dataset=True)
     run_recommender(read_alike_library, read_alike_recommender, n_iterations=N_ITERATIONS)

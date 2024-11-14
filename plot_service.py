@@ -11,11 +11,27 @@ def plot_intra_scores(scores, name):
     plt.ylabel('Frequency')
     plt.savefig(f"{name} Scores.png")
     plt.show()
+
+def compare_similarity_distributions(tfidf_scores, ann_scores_normalized):
+    """
+    Parameters:
+    tfidf_scores (list of float): List of cosine similarity scores between 0 and 1.
+    ann_scores_normalized (list of float): List of normalized ANN similarity scores between 0 and 1.
+    """
+    plt.figure(figsize=(10, 6))
+    seaborn.histplot(tfidf_scores, label="Cosine Similarity (TF-IDF)", kde=True, color="blue", alpha=0.5)
+    seaborn.histplot(ann_scores_normalized, label="ANN Similarity", kde=True, color="red", alpha=0.5)
+
+    plt.title("Comparison of Cosine Similarity (TF-IDF) and ANN Scores")
+    plt.xlabel("Similarity Score")
+    plt.ylabel("Frequency")
+    plt.legend()
+    plt.show()
     
 def plot_distribution(all_recommendations):
     tfidf_scores = [rec["avg_tfidf_score"] for rec in all_recommendations]
     sbert_scores =  [rec["avg_sbert_score"] for rec in all_recommendations]
-    ann_scores =  [rec["avg_ann_score"] for rec in all_recommendations]
+    ann_scores =  [rec["avg_ann_score_normalized"] for rec in all_recommendations]
 
     score_data = {
         "TF-IDF": tfidf_scores,
@@ -28,9 +44,9 @@ def plot_distribution(all_recommendations):
 
     # Boxplot
     plt.figure(figsize=(12, 6))
-    seaborn.histplot(tfidf_scores, label='TF-IDF', kde=True, bins=20, color='blue', alpha=0.5)
+    seaborn.histplot(tfidf_scores, label='TF-IDF CS', kde=True, bins=20, color='blue', alpha=0.5)
     seaborn.histplot(sbert_scores, label='SBERT', kde=True, bins=20, color='orange', alpha=0.5)
-    seaborn.histplot(ann_scores, label='ANN', kde=True, bins=20, color='red', alpha=0.5)
+    seaborn.histplot(ann_scores, label='TF-IDF ANN', kde=True, bins=20, color='red', alpha=0.5)
     
 
     plt.title('Distribution of Average Scores for Each Recommender')
