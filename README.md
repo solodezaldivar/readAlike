@@ -4,6 +4,14 @@
 
 `readAlike` is a book recommendation system that provides similar books to a given input book. The system leverages multiple techniques, including TF-IDF vectorization, Sentence-BERT embeddings, and Approximate Nearest Neighbors (ANN) for generating content-based book recommendations based on title, description, author, and category data.
 
+
+## How to Run
+
+To run the recommendation engine: 
+1. Open the command line and execute ``` pip install -r requirements.txt ```
+2. Execute `main.py`. Given an example book, the program will print the top five recommended books based on three methods: TF-IDF, SBERT, and ANN.
+
+
 ## Project Structure
 
 ### 1. Classes
@@ -79,9 +87,3 @@
   - `ann`: ANN instance.
 - **Methods**:
   - `recommend()`: Provides top recommendations based on TF-IDF, SBERT, and ANN.
-
-## Example Usage
-
-To run the recommendation engine: 
-1. Open the command line and execute ``` pip install -r requirements.txt ```
-2. Execute `main.py`. Given an example book, the program will print the top five recommended books based on three methods: TF-IDF, SBERT, and ANN.
