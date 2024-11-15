@@ -62,7 +62,7 @@ def run_recommender(library: Library, recommender: Recommender, n_iterations=10)
     
     
     plot_intra_scores(tfidf_scores, "Avg TF-IDF")
-    plot_intra_scores(sbert_scores, "Avg SBERTH")
+    plot_intra_scores(sbert_scores, "Avg SBERT")
     plot_intra_scores(ann_scores, "Avg ANN Distance NOT normalized")
     plot_intra_scores(ann_scores_normalized, "Avg ANN Distance Normalized")
     compare_similarity_distributions(tfidf_scores, ann_scores_normalized)
@@ -70,5 +70,5 @@ def run_recommender(library: Library, recommender: Recommender, n_iterations=10)
 
 
 if __name__ == "__main__":
-    read_alike_library, read_alike_recommender = setup_recommender(use_reduced_dataset=True)
+    read_alike_library, read_alike_recommender = setup_recommender(use_reduced_dataset=False)
     run_recommender(read_alike_library, read_alike_recommender, n_iterations=N_ITERATIONS)

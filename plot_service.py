@@ -13,11 +13,6 @@ def plot_intra_scores(scores, name):
     plt.show()
 
 def compare_similarity_distributions(tfidf_scores, ann_scores_normalized):
-    """
-    Parameters:
-    tfidf_scores (list of float): List of cosine similarity scores between 0 and 1.
-    ann_scores_normalized (list of float): List of normalized ANN similarity scores between 0 and 1.
-    """
     plt.figure(figsize=(10, 6))
     seaborn.histplot(tfidf_scores, label="Cosine Similarity (TF-IDF)", kde=True, color="blue", alpha=0.5)
     seaborn.histplot(ann_scores_normalized, label="ANN Similarity", kde=True, color="red", alpha=0.5)
