@@ -18,8 +18,8 @@ class Ann:
         ann_indices.build(n_trees)
         return ann_indices
 
-    def get_nearest_neighbors_by_index(self, index: int, n_neighbors: int) -> list[int]:
-        return self.__ann_indices.get_nns_by_item(index, n_neighbors)
+    def get_nearest_neighbors_by_index(self, index: int, n_neighbors: int) -> tuple[list[int], list[float]]:
+        return self.__ann_indices.get_nns_by_item(index, n_neighbors, include_distances=True)
 
-    def get_nearest_neighbors_by_vector(self, vector: np.ndarray, n_neighbors: int) -> list[int]:
-        return self.__ann_indices.get_nns_by_vector(vector, n_neighbors)
+    def get_nearest_neighbors_by_vector(self, vector: np.ndarray, n_neighbors: int) -> tuple[list[int], list[float]]:
+        return self.__ann_indices.get_nns_by_vector(vector, n_neighbors, include_distances=True)

@@ -25,7 +25,7 @@ class Vectorizer:
             chunk = books[i:i + chunk_size]
             chunk_embeddings = self.__sbert.encode(chunk, convert_to_tensor=True)
             embeddings.append(chunk_embeddings)
-        return np.vstack(embeddings)
+        return np.vstack([embedding.cpu().numpy() for embedding in embeddings])
 
     def tfidf_vectorize(self, book: Book) -> csr_matrix:
         return self.__tfidf.transform([book.get_combined_data()])

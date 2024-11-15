@@ -82,4 +82,6 @@
 
 ## Example Usage
 
-To run the recommendation engine, execute `main.py`. Given an example book, the program will print the top five recommended books based on three methods: TF-IDF, SBERT, and ANN.
+To run the recommendation engine: 
+1. Open the command line and execute ``` pip install -r requirements.txt ```
+2. Execute `main.py`. Given an example book, the program will print the top five recommended books based on three methods: TF-IDF, SBERT, and ANN.
