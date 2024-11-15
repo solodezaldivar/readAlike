@@ -1,23 +1,22 @@
 import random
 import numpy as np
-import csv
 from tqdm import tqdm
 
 from plot_service import plot_distribution, plot_intra_scores, compare_similarity_distributions
 from preprocessing.preprocessor import Preprocessor
 from core.library import Library
 from core.recommender import Recommender
-from config import DATASET_PATH, COLS, N_REDUCED_DATASET, N_DIM_REDUCTION, N_TREES, N_RECOMMENDATIONS, N_ITERATIONS
+from config import COLS, N_REDUCED_DATASET, N_DIM_REDUCTION, N_TREES, N_RECOMMENDATIONS, N_ITERATIONS
 import kagglehub
 
-# Download latest version
-path = kagglehub.dataset_download("mohamedbakhet/amazon-books-reviews")
+# Download version 1
+path = kagglehub.dataset_download("mohamedbakhet/amazon-books-reviews/versions/1")
 
 print("Path to dataset files:", path)
 
 
 def setup_recommender(use_reduced_dataset: bool) -> tuple[Library, Recommender]:
-    preprocessor = Preprocessor(path+"/books_data.csv", COLS)
+    preprocessor = Preprocessor(path + "/books_data.csv", COLS)
     preprocessed_data = preprocessor.preprocess_data()
     if use_reduced_dataset:
         preprocessed_data = preprocessed_data.head(N_REDUCED_DATASET)
@@ -59,15 +58,13 @@ def run_recommender(library: Library, recommender: Recommender, n_iterations=10)
     ann_scores_normalized = [score["avg_ann_score_normalized"] for score in all_recommendations]
     # Plotting
     plot_distribution(all_recommendations)
-    
-    
+
     plot_intra_scores(tfidf_scores, "Avg TF-IDF")
     plot_intra_scores(sbert_scores, "Avg SBERT")
     plot_intra_scores(ann_scores, "Avg ANN Distance NOT normalized")
     plot_intra_scores(ann_scores_normalized, "Avg ANN Distance Normalized")
     compare_similarity_distributions(tfidf_scores, ann_scores_normalized)
     
-
 
 if __name__ == "__main__":
     read_alike_library, read_alike_recommender = setup_recommender(use_reduced_dataset=False)

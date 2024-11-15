@@ -1,6 +1,3 @@
-# File Paths
-DATASET_PATH = './datasets/amazon_books_data.csv'  # original source: https://www.kaggle.com/datasets/mohamedbakhet/amazon-books-reviews
-
 # DataFram Column Definitions
 TITLE_COL = 'Title'
 DESCRIPTION_COL = 'description'
